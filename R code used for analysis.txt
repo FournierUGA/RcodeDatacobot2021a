@@ -1,0 +1,418 @@
+##Get the necessary packages##
+install.packages("prettyR") 
+install.packages("tidyverse")
+install.packages("gtsummary")
+install.packages("labelled")
+install.packages("esquisse")
+install.packages("GGally")
+install.packages("scales")
+install.packages("Kendall")
+install.packages("RcmdrMisc")
+install.packages("outliers")
+install.packages("psych")
+install.packages("effsize")
+install.packages("lsr")
+library(tidyverse)
+library(prettyR)
+library(gtsummary)
+library(labelled)
+library(esquisse)
+library(GGally)
+library(scales)
+library(Kendall)
+library(RcmdrMisc)
+library(outliers)
+library(psych)
+library(effsize)
+library(lsr) 
+
+##Import the dataset##
+setwd("C:/Users/COBOT_LEGO")
+library(readxl)
+Datacobot <- read_excel("C:/Users/COBOT_LEGO/Datacobot.xlsx")
+view(Datacobot)
+
+##Hypothesis : relation between the condition and the perceived cognitive load##
+#Check for outliers#
+tbl_summary(Datacobot$Percognload)
+boxplot(Datacobot$Percognload, main="Perceived cognitive load")
+hist(Datacobot$Percognload, main = "Distribution of the participants by perceived cognitive load", xlab = "Perceived cognitive load", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "Percognload"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(Percognload ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "Percognload",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$Percognload, Datacobot$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$Percognload, Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$Percognload[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$Percognload[Datacobot$Condition=="1"])
+qqnorm(Datacobot$Percognload[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$Percognload[Datacobot$Condition=="2"])
+hist(Datacobot$Percognload[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$Percognload[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$Percognload,Datacobot$Condition,shapiro.test)
+
+#Check the homogeneity of the variances#
+leveneTest(Datacobot$condition~Datacobot$Percognload)
+
+#Check the significance of the hypothesis#
+t.test(Datacobot$Percognload~Datacobot$condition, var.equal=T)
+
+##Hypotheses : relation between the condition and the number of mistakes and almost-mistakes##
+#Check for outliers#
+summary(Datacobot$MistalmistPart)
+boxplot(Datacobot$MistalmistPart, main="Number of mistakes and almost-mistakes")
+hist(Datacobot$MistalmistPart, main = "Distribution of the participants by number of mistakes and almost-mistakes", xlab = "Number of mistakes and almost-mistakes", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("condition", "MistalmistPart"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(MistalmistPart ~ condition, data = Datacobot)
+install.packages("outliers")
+library(outliers)
+by(Datacobot$MistalmistPart, Datacobot$condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$MistalmistPart, Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$MistalmistPart[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$MistalmistPart[Datacobot$Condition=="1"])
+qqnorm(Datacobot$MistalmistPart[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$MistalmistPart[Datacobot$Condition=="2"])
+hist(Datacobot$MistalmistPart[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$MistalmistPart[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$MistalmistPart,Datacobot$Condition,shapiro.test)
+
+#Check the significance of the hypothesis#
+wilcox.test(Datacobot$MistalmistPart~Datacobot$Condition)
+
+#Effect size#
+install.packages("effsize")
+library(effsize)
+cohen.d(Datacobot$MistalmistPart~Datacobot$Condition)
+
+##Hypothesis : relation between condition and the number of gestures##
+#Check for outliers#
+summary(Datacobot$GestPart)
+boxplot(Datacobot$GestPart, main="Number of gestures")
+hist(Datacobot$GestPart, main = "Distribution of the participants by number of gestures", xlab = "Number of gestures", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "GestPart"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(GestPart ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "GestPart",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$GestPart, Datacobot$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$GestPart,Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$GestPart[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$GestPart[Datacobot$Condition=="1"])
+qqnorm(Datacobot$GestPart[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$GestPart[Datacobot$Condition=="2"])
+hist(Datacobot$GestPart[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$GestPart[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$GestPart,Datacobot$Condition,shapiro.test)
+
+#Check the homogeneity of the variances#
+leveneTest(Datacobot$Condition~Datacobot$GestPart)
+
+#Check the significance of the hypothesis#
+t.test(Datacobot$GestPart~Datacobot$Condition, var.equal=T)
+
+#Effect size#
+install.packages("effsize")
+library(effsize)
+cohen.d(Datacobot$GestPart~Datacobot$Condition)
+
+##Hypothesis : relation between the condition and the average execution time##
+#Check for outliers#
+summary(Datacobot$Time)
+boxplot(Datacobot$Time, main="Average execution time")
+hist(Datacobot$Time, main = "Distribution of the participants by average execution time", xlab = "Average execution time", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "Time"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(Time ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "Time",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$Time, Datacobot$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$Time,Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$Time[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$Time[Datacobot$Condition=="1"])
+qqnorm(Datacobot$Time[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$Time[Datacobot$Condition=="2"])
+hist(Datacobot$Time[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$Time[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$Time,Datacobot$Condition,shapiro.test)
+
+#Check the homogeneity of the variances#
+leveneTest(Datacobot$Condition~Datacobot$Time)
+
+#Check the significance of the hypothesis#
+t.test(Datacobot$Time~Datacobot$Condition, var.equal=T)
+
+#Effect size#
+install.packages("effsize")
+library(effsize)
+cohen.d(Datacobot$Time~Datacobot$Condition)
+
+##Hypothesis : relation between the condition and the perceived mental demand##
+#Check for outliers#
+summary(Datacobot$EvalMentalDemand)
+boxplot(Datacobot$EvalMentalDemand, main="Perceived mental demand")
+hist(Datacobot$EvalMentalDemand, main = "Distribution of the participants by perceived mental demand", xlab = "Perceived mental demand", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "EvalMentalDemand"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(EvalMentalDemand ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "EvalMentalDemand",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$EvalMentalDemand, Datacobot$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$EvalMentalDemand,Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$EvalMentalDemand[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$EvalMentalDemand[Datacobot$Condition=="1"])
+qqnorm(Datacobot$EvalMentalDemand[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$EvalMentalDemand[Datacobot$Condition=="2"])
+hist(Datacobot$EvalMentalDemand[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$EvalMentalDemand[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$EvalMentalDemand,Datacobot$Condition,shapiro.test)
+
+#Check the homogeneity of the variances#
+leveneTest(Datacobot$Condition~Datacobot$EvalMentalDemand)
+
+#Check the significance of the hypothesis#
+t.test(Datacobot$EvalMentalDemand~Datacobot$Condition, var.equal=T)
+
+##Hypothesis : relation between the condition and the perceived physical demand##
+#Check for outliers#
+summary(Datacobot$EvalPhysicalDemand)
+boxplot(Datacobot$EvalPhysicalDemand, main="Physical demand")
+hist(Datacobot$EvalPhysicalDemand, main = "Distribution of the participants by perceived physical demand, xlab = "Perceived physical demand", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "EvalPhysicalDemand"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(EvalPhysicalDemand ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "EvalPhysicalDemand",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$EvalPhysicalDemand, Datacobot$Condition,grubbs.test)
+
+#Treatment of outliers#
+library(readxl)
+Datacobot2 <- read_excel("C:/Users/Datacobot2.xlsx")
+View(Datacobot2)
+library(outliers)
+by(Datacobot2$EvalPhysicalDemand, Datacobot2$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot2$EvalPhysicalDemand,Datacobot2$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot2$EvalPhysicalDemand[Datacobot2$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot2$EvalPhysicalDemand[Datacobot2$Condition=="1"])
+qqnorm(Datacobot2$EvalPhysicalDemand[Datacobot2$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot2$EvalPhysicalDemand[Datacobot2$Condition=="2"])
+hist(Datacobot2$EvalPhysicalDemand[Datacobot2$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot2$EvalPhysicalDemand[Datacobot2$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot2$EvalPhysicalDemand,Datacobot2$Condition,shapiro.test)
+
+#Check the significance of the hypothesis#
+wilcox.test(Datacobot2$EvalPhysicalDemand~Datacobot2$Condition)
+
+##Hypothesis : relation between the condition the perceived time requirement##
+#Check for outliers#
+summary(Datacobot$EvalTimeRequirement)
+boxplot(Datacobot$EvalTimeRequirement, main="Perceived time requirement")
+hist(Datacobot$EvalTimeRequirement, main = "Distribution of the participants by perceived time requirement", xlab = "Perceived time requirement", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "EvalTimeRequirement"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(EvalTimeRequirement ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "EvalTimeRequirement",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$EvalTimeRequirement, Datacobot$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$EvalTimeRequirement,Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$EvalTimeRequirement[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$EvalTimeRequirement[Datacobot$Condition=="1"])
+qqnorm(Datacobot$EvalTimeRequirement[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$EvalTimeRequirement[Datacobot$Condition=="2"])
+hist(Datacobot$EvalTimeRequirement[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$EvalTimeRequirement[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$EvalTimeRequirement,Datacobot$Condition,shapiro.test)
+
+#Check the homogeneity of the variances#
+leveneTest(Datacobot$Condition~Datacobot$EvalTimeRequirement)
+
+#Check the significance of the hypothesis#
+t.test(Datacobot$EvalTimeRequirement~Datacobot$Condition)
+
+##Hypothesis : relation between the condition and the perceived effort##
+#Check for outliers#
+summary(Datacobot$EvalEffort)
+boxplot(Datacobot$EvalEffort, main="Perceived effort")
+hist(Datacobot$EvalEffort, main = "Distribution of the participants by perceived effort", xlab = "Perceived effort", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "EvalEffort"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(EvalEffort ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "EvalEffort",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$EvalEffort, Datacobot$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$EvalEffort,Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$EvalEffort[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$EvalEffort[Datacobot$Condition=="1"])
+qqnorm(Datacobot$EvalEffort[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$EvalEffort[Datacobot$Condition=="2"])
+hist(Datacobot$EvalEffort[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$EvalEffort[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$EvalEffort,Datacobot$Condition,shapiro.test)
+
+#Check the homogeneity of the variances#
+leveneTest(Datacobot$Condition~Datacobot$EvalEffort)
+
+#Check the significance of the hypothesis#
+t.test(Datacobot$EvalEffort~Datacobot$Condition, var.equal=T)
+
+##Hypothesis : relation between the condition and the perceived performance##
+#Check for outliers#
+summary(Datacobot$EvalPerformance)
+boxplot(Datacobot$EvalPerformance, main="Perceived performance")
+hist(Datacobot$EvalPerformance, main = "Distribution of the participants by perceived performance", xlab = "Perceived performance", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "EvalPerformance"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(EvalPerformance ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "EvalPerformance",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$EvalPerformance, Datacobot$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$EvalPerformance,Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$EvalPerformance[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$EvalPerformance[Datacobot$Condition=="1"])
+qqnorm(Datacobot$EvalPerformance[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$EvalPerformance[Datacobot$Condition=="2"])
+hist(Datacobot$EvalPerformance[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$EvalPerformance[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$EvalPerformance,Datacobot$Condition,shapiro.test)
+
+#Check the significance of the hypothesis#
+wilcox.test(Datacobot$EvalPerformance~Datacobot$Condition)
+
+##Hypothesis : relation between the condition and the perceived frustration##
+#Check for outliers#
+summary(Datacobot$Evalfrustration)
+boxplot(Datacobot$Evalfrustration, main="Perceived frustration")
+hist(Datacobot$Evalfrustration, main = "Distribution of the participants by perceived frustration", xlab = "Perceived frustration", ylab = "Number of participants")
+tbl_summary (Datacobot,
+             include = c("Condition", "Evalfrustration"),
+             by = "Condition",
+             statistic = all_continuous() ~ "{mean} ({sd})",
+             digits = all_continuous() ~ 1)
+boxplot(Evalfrustration ~ Condition, data = Datacobot)
+Datacobot %>% 
+  ggbivariate(
+    outcome = "Evalfrustration",
+    explanatory = c("Condition")
+  )
+install.packages("outliers")
+library(outliers)
+by(Datacobot$Evalfrustration, Datacobot$Condition,grubbs.test)
+
+#Check the normality of the sample#
+library(psych)
+by(Datacobot$Evalfrustration,Datacobot$Condition,psych::describe)
+par(mfrow=c(1,2))
+qqnorm(Datacobot$Evalfrustration[Datacobot$Condition=="1"],main="Q-Q Plot, Without robot collaboration")
+qqline(Datacobot$Evalfrustration[Datacobot$Condition=="1"])
+qqnorm(Datacobot$Evalfrustration[Datacobot$Condition=="2"],main="Q-Q Plot, With robot collaboration")
+qqline(Datacobot$Evalfrustration[Datacobot$Condition=="2"])
+hist(Datacobot$Evalfrustration[Datacobot$Condition == "1"], main = "Without robot collaboration", col = "red")
+hist(Datacobot$Evalfrustration[Datacobot$Condition == "2"], main = "With robot collaboration", col = "red")
+by(Datacobot$Evalfrustration,Datacobot$Condition,shapiro.test)
+
+#Check the significance of the hypothesis#
+wilcox.test(Datacobot$Evalfrustration~Datacobot$Condition)
